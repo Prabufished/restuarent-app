@@ -1,0 +1,6 @@
+{
+  "name": "QR Menu & Table Ordering App",
+  "description": "A QR-code digital menu and table ordering app prototype with live order tracking, menu digitization via Gemini OCR, and a real-time Chef View queue.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,119 @@
+{
+  "entities": {
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "A food or beverage item on the restaurant digital menu",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the dish"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief description of the dish"
+        },
+        "price": {
+          "type": "number",
+          "description": "Base price of the item"
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the food item, e.g. Starter, Main Course"
+        },
+        "isVeg": {
+          "type": "boolean",
+          "description": "Whether the dish is vegetarian"
+        },
+        "spiceLevel": {
+          "type": "string",
+          "description": "Spice level: None, Mild, Medium, Hot"
+        },
+        "isAvailable": {
+          "type": "boolean",
+          "description": "Whether the dish is in stock"
+        },
+        "image": {
+          "type": "string",
+          "description": "Optional image URL"
+        },
+        "customizationGroups": {
+          "type": "array",
+          "description": "Optional custom modifiers like size or spice options"
+        }
+      },
+      "required": ["name", "price", "category", "isVeg", "isAvailable"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "A customer table order sent to the kitchen",
+      "type": "object",
+      "properties": {
+        "tableId": {
+          "type": "string",
+          "description": "The table number placing the order"
+        },
+        "status": {
+          "type": "string",
+          "description": "Order status",
+          "enum": ["New", "Preparing", "Ready", "Served"]
+        },
+        "timestamp": {
+          "type": "number",
+          "description": "Time the order was placed"
+        },
+        "items": {
+          "type": "array",
+          "description": "List of items in the order"
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "Grand total price of the order"
+        },
+        "specialInstructions": {
+          "type": "string",
+          "description": "Optional special notes for the chef"
+        }
+      },
+      "required": ["tableId", "status", "timestamp", "items", "totalPrice"]
+    },
+    "RestaurantSettings": {
+      "title": "RestaurantSettings",
+      "description": "General settings and info for the dining system",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Restaurant Name"
+        },
+        "logo": {
+          "type": "string",
+          "description": "Logo URL"
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency symbol, e.g. ₹"
+        },
+        "tablesCount": {
+          "type": "number",
+          "description": "Total number of physical tables"
+        }
+      },
+      "required": ["name", "currency", "tablesCount"]
+    }
+  },
+  "firestore": {
+    "/menu/{menuItemId}": {
+      "schema": "MenuItem",
+      "description": "Menu collection storing digitized dish documents"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Orders collection containing live kitchen-bound tickets"
+    },
+    "/settings/{settingsId}": {
+      "schema": "RestaurantSettings",
+      "description": "App settings, including currency and total tables count"
+    }
+  }
+}

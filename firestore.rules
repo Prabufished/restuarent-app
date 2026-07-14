@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Catch-all default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions for validation
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation for MenuItem
+    function isValidMenuItem(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.category is string && data.category.size() > 0 && data.category.size() <= 50
+        && data.price is number && data.price >= 0 && data.price <= 10000
+        && data.isVeg is bool
+        && data.isAvailable is bool
+        && (!('description' in data) || (data.description is string && data.description.size() <= 500))
+        && (!('spiceLevel' in data) || (data.spiceLevel is string && data.spiceLevel.size() <= 20))
+        && (!('image' in data) || (data.image is string && data.image.size() <= 1000))
+        && (!('customizationGroups' in data) || (data.customizationGroups is list));
+    }
+
+    // Validation for Order
+    function isValidOrder(data) {
+      return data.tableId is string && data.tableId.size() > 0 && data.tableId.size() <= 20
+        && data.status is string && data.status in ['New', 'Preparing', 'Ready', 'Served']
+        && data.timestamp is number
+        && data.items is list && data.items.size() > 0 && data.items.size() <= 100
+        && data.totalPrice is number && data.totalPrice >= 0
+        && (!('specialInstructions' in data) || (data.specialInstructions is string && data.specialInstructions.size() <= 500));
+    }
+
+    // Validation for RestaurantSettings
+    function isValidRestaurantSettings(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.currency is string && data.currency.size() > 0 && data.currency.size() <= 5
+        && data.tablesCount is number && data.tablesCount > 0 && data.tablesCount <= 100
+        && (!('logo' in data) || (data.logo is string && data.logo.size() <= 1000));
+    }
+
+    // Match rules
+    match /menu/{menuItemId} {
+      allow read: if true;
+      allow create: if isValidId(menuItemId) && isValidMenuItem(incoming());
+      allow update: if isValidId(menuItemId) && isValidMenuItem(incoming());
+      allow delete: if isValidId(menuItemId);
+    }
+
+    match /orders/{orderId} {
+      allow read: if true;
+      allow create: if isValidId(orderId) && isValidOrder(incoming());
+      allow update: if isValidId(orderId) && isValidOrder(incoming());
+      allow delete: if isValidId(orderId);
+    }
+
+    match /settings/{settingsId} {
+      allow read: if true;
+      allow create, update: if isValidId(settingsId) && isValidRestaurantSettings(incoming());
+      allow delete: if false;
+    }
+  }
+}
